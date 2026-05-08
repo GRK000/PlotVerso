@@ -49,10 +49,8 @@ export default function LibraryScreen() {
     <View style={libraryStyles.section}>
       <View style={libraryStyles.sectionHeader}>
         <View>
-          <AppText variant="section">{title}</AppText>
-          <AppText variant="small" color={colors.textMuted}>
-            {items.length} libros
-          </AppText>
+          <AppText variant="section">{title} · {items.length}</AppText>
+          <AppText variant="small" color={colors.textMuted}>Biblioteca visual</AppText>
         </View>
         <Badge label="Ver todo" tone={featured ? 'accent' : 'muted'} />
       </View>
@@ -78,7 +76,7 @@ export default function LibraryScreen() {
     </View>
   );
   return (
-    <Screen maxWidth={1120}>
+    <Screen maxWidth={1180}>
       <Card variant="featured" accent="library" style={libraryStyles.hero}>
         <View style={{ flex: 1, gap: 8 }}>
           <AppText variant="title">Biblioteca</AppText>
@@ -86,6 +84,7 @@ export default function LibraryScreen() {
         </View>
         <GradientButton title="Añadir lectura" />
       </Card>
+      <TextField label="Buscar libros" value={query} onChangeText={setQuery} placeholder="Título, autor o ISBN" />
       <View style={libraryStyles.statsRow}>
         {stats.map(([label, value, color]) => (
           <Card key={label} variant="glass" style={libraryStyles.statCard}>
@@ -94,7 +93,6 @@ export default function LibraryScreen() {
           </Card>
         ))}
       </View>
-      <TextField label="Buscar libros" value={query} onChangeText={setQuery} placeholder="Título, autor o ISBN" />
       {searchResults.length ? (
         <Card variant="elevated">
           <AppText variant="section">Resultados</AppText>
@@ -119,7 +117,7 @@ export default function LibraryScreen() {
           <Button title="Buscar en fuentes externas" variant="secondary" icon={<Search size={16} />} />
         </Card>
       ) : null}
-      {section('Leer ahora', library.filter((item) => item.status === 'reading'), true)}
+      {section('Leyendo ahora', library.filter((item) => item.status === 'reading'), true)}
       {section('Favoritos', library.filter((item) => item.is_favorite || item.status === 'favorite'), true)}
       {section('Pendientes', library.filter((item) => item.status === 'pending'))}
       {section('Leídos', library.filter((item) => item.status === 'read'))}
@@ -131,7 +129,7 @@ export default function LibraryScreen() {
 const libraryStyles = StyleSheet.create({
   hero: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' },
   statsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  statCard: { minWidth: 130, flex: 1, paddingVertical: 14 },
+  statCard: { minWidth: 118, flex: 1, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 18 },
   section: { gap: 14 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   rail: { gap: 16, paddingRight: 20, paddingVertical: 4 },

@@ -22,7 +22,7 @@ export default function MatchesScreen() {
   );
   if (loading) return <LoadingState label="Cargando matches" />;
   return (
-    <Screen maxWidth={860}>
+    <Screen maxWidth={900}>
       <Card variant="featured" accent="matches" style={matchStyles.summary}>
         <View>
           <AppText variant="title">Matches</AppText>
@@ -30,11 +30,11 @@ export default function MatchesScreen() {
         </View>
         <View style={matchStyles.summaryStats}>
           <View>
-            <AppText variant="small" color={colors.textMuted}>Matches activos</AppText>
+            <AppText variant="small" color={colors.textMuted}>Activos</AppText>
             <AppText variant="section" color={colors.secondaryBright}>{matches.length}</AppText>
           </View>
           <View>
-            <AppText variant="small" color={colors.textMuted}>Likes pendientes</AppText>
+            <AppText variant="small" color={colors.textMuted}>Pendientes</AppText>
             <AppText variant="section" color={colors.primaryBright}>3</AppText>
           </View>
           <View>

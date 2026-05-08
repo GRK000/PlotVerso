@@ -26,7 +26,7 @@ export default function DiscoverScreen() {
   const next = () => setIndex((value) => value + 1);
   if (loading) return <LoadingState label="Buscando perfiles" />;
   return (
-    <Screen maxWidth={520}>
+    <Screen maxWidth={640}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <AppText variant="title">Descubrir</AppText>
         <IconButton label="Filtros">

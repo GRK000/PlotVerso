@@ -18,6 +18,7 @@ import {
   ViewStyle
 } from 'react-native';
 import { ChevronDown, X } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 import type { ThemePreference } from '@/shared/types/domain';
 import { sectionGradients } from '@/shared/theme/colors';
@@ -56,11 +57,17 @@ export function Screen({
   style?: StyleProp<ViewStyle> | undefined;
 }) {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const bottomSpace = 104 + insets.bottom;
   const content = (
     <View
       style={[
         styles.screenInner,
-        { maxWidth: maxWidth ?? 1120, paddingHorizontal: width >= 768 ? 24 : 16 },
+        {
+          maxWidth: maxWidth ?? 1120,
+          paddingHorizontal: width >= 768 ? 24 : 16,
+          paddingBottom: bottomSpace
+        },
         style
       ]}
     >
@@ -80,6 +87,10 @@ export function AppBackground({ children }: { children: ReactNode }) {
     resolved === 'dark'
       ? `linear-gradient(145deg, ${colors.background} 0%, ${colors.background2} 48%, #0B1024 100%)`
       : `linear-gradient(145deg, ${colors.background} 0%, ${colors.background2} 52%, ${colors.background3} 100%)`;
+  const blobStyle = resolved === 'dark'
+    ? { width: 300, height: 300, opacity: 0.42 }
+    : { width: 220, height: 220, opacity: 0.16 };
+  const blurStyle = Platform.OS === 'web' ? ({ filter: 'blur(26px)' } as ViewStyle) : null;
   return (
     <View
       style={[
@@ -90,9 +101,9 @@ export function AppBackground({ children }: { children: ReactNode }) {
         Platform.OS === 'web' ? ({ backgroundImage: gradient } as ViewStyle) : null
       ]}
     >
-      <View style={[styles.blob, styles.blobTopLeft, { backgroundColor: colors.glowPurple }]} />
-      <View style={[styles.blob, styles.blobTopRight, { backgroundColor: colors.glowCyan }]} />
-      <View style={[styles.blob, styles.blobBottom, { backgroundColor: colors.glowPink }]} />
+      <View style={[styles.blob, styles.blobTopLeft, blobStyle, blurStyle, { backgroundColor: colors.glowPurple }]} />
+      <View style={[styles.blob, styles.blobTopRight, blobStyle, blurStyle, { backgroundColor: colors.glowCyan }]} />
+      <View style={[styles.blob, styles.blobBottom, blobStyle, blurStyle, { backgroundColor: colors.glowPink }]} />
       <View pointerEvents="none" style={[styles.noiseOverlay, { borderColor: colors.border }]} />
       {children}
     </View>
@@ -519,10 +530,10 @@ export const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flexGrow: 1 },
   screenInner: { width: '100%', alignSelf: 'center', paddingVertical: 24, gap: 16 },
-  blob: { position: 'absolute', width: 320, height: 320, borderRadius: 999, opacity: 0.62 },
-  blobTopLeft: { top: -130, left: -110 },
-  blobTopRight: { top: -115, right: -130 },
-  blobBottom: { bottom: -160, alignSelf: 'center' },
+  blob: { position: 'absolute', borderRadius: 999 },
+  blobTopLeft: { top: -115, left: -90 },
+  blobTopRight: { top: -100, right: -105 },
+  blobBottom: { bottom: -135, alignSelf: 'center' },
   noiseOverlay: {
     ...StyleSheet.absoluteFillObject,
     opacity: 0.05,

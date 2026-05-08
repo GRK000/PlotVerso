@@ -8,7 +8,7 @@ import { PhotoGrid, ProfileHeroCard } from '@/features/profile/components';
 export default function ProfileScreen() {
   const user = currentDemoUser;
   return (
-    <Screen maxWidth={1120}>
+    <Screen maxWidth={1180}>
       <ProfileHeroCard user={user} />
       <Card variant="elevated">
         <AppText variant="section">Fotos</AppText>
