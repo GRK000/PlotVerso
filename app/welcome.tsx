@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { BookOpen } from 'lucide-react-native';
 import { View } from 'react-native';
-import { AppText, Button, Card, Screen, ThemeToggle } from '@/shared/ui/core';
+import { AppText, Button, Card, GradientButton, Screen, ThemeToggle } from '@/shared/ui/core';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
 export default function WelcomeScreen() {
@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
           <AppText variant="title">PlotVerso</AppText>
           <AppText color={colors.textMuted}>Citas y conversaciones a partir de gustos literarios.</AppText>
         </View>
-        <Button title="Crear cuenta" onPress={() => router.push('/register')} />
+        <GradientButton title="Crear cuenta" onPress={() => router.push('/register')} />
         <Button title="Iniciar sesión" variant="secondary" onPress={() => router.push('/login')} />
       </Card>
     </Screen>

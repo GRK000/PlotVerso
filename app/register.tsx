@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { register } from '@/features/auth/api';
 import { registerSchema, type RegisterInput } from '@/shared/schemas';
-import { AppText, Button, Card, Screen, TextField } from '@/shared/ui/core';
+import { AppText, Card, GradientButton, Screen, TextField } from '@/shared/ui/core';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
 export default function RegisterScreen() {
@@ -31,7 +31,7 @@ export default function RegisterScreen() {
           <AppText>Acepto las condiciones de uso.</AppText>
         </Pressable>
         {formState.errors.acceptTerms ? <AppText variant="small" color={colors.danger}>{formState.errors.acceptTerms.message}</AppText> : null}
-        <Button title="Continuar" onPress={onSubmit} />
+        <GradientButton title="Continuar" onPress={onSubmit} />
         <Link href="/login"><AppText color={colors.textMuted}>Ya tengo cuenta</AppText></Link>
       </Card>
     </Screen>

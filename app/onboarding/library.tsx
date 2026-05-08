@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { demoBooks } from '@/shared/data/demo';
-import { AppText, Button, Card, Chip, Screen, TextField } from '@/shared/ui/core';
+import { AppText, Card, Chip, GradientButton, Screen, TextField } from '@/shared/ui/core';
 import { BookCover } from '@/features/books/components';
 
 export default function LibraryOnboarding() {
@@ -24,7 +24,7 @@ export default function LibraryOnboarding() {
             </View>
           ))}
         </View>
-        <Button title="Siguiente" disabled={selected.length < 5} onPress={() => router.push('/onboarding/questions')} />
+        <GradientButton title="Siguiente" disabled={selected.length < 5} onPress={() => router.push('/onboarding/questions')} />
       </Card>
     </Screen>
   );

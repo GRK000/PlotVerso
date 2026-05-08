@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { AppText, Button, Card, Screen, TextArea } from '@/shared/ui/core';
+import { AppText, Card, GradientButton, Screen, TextArea } from '@/shared/ui/core';
 
 const questions = [
   ['tasteBook', '¿Qué libro recomendarías para entender mejor tus gustos?'],
@@ -18,7 +18,7 @@ export default function QuestionsOnboarding() {
       <Card>
         <AppText variant="title">Preguntas abiertas</AppText>
         {questions.map(([key, label]) => <TextArea key={key} label={label} value={answers[key] ?? ''} onChangeText={(text) => setAnswers({ ...answers, [key]: text })} />)}
-        <Button title="Analizar perfil" disabled={!ready} onPress={() => router.push('/onboarding/result')} />
+        <GradientButton title="Analizar perfil" disabled={!ready} onPress={() => router.push('/onboarding/result')} />
       </Card>
     </Screen>
   );

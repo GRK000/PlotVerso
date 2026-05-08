@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { View } from 'react-native';
 import { basicProfileSchema, relationshipIntentOptions, type BasicProfileInput } from '@/shared/schemas';
 import { genderOptions } from '@/shared/data/options';
-import { AppText, Button, Card, Chip, Screen, Select, TextField } from '@/shared/ui/core';
+import { AppText, Card, Chip, GradientButton, Screen, Select, TextField } from '@/shared/ui/core';
 
 export default function BasicOnboarding() {
   const { control, handleSubmit, setValue, watch } = useForm<BasicProfileInput>({
@@ -27,7 +27,7 @@ export default function BasicOnboarding() {
           {genderOptions.slice(0, 4).map((item) => <Chip key={item} label={item} selected={interested.includes(item)} onPress={() => setValue('interested_in', interested.includes(item) ? interested.filter((x) => x !== item) : [...interested, item], { shouldValidate: true })} />)}
         </View>
         <Controller control={control} name="relationship_intent" render={({ field, fieldState }) => <Select label="Intención" value={field.value} options={relationshipIntentOptions} onChange={field.onChange} error={fieldState.error?.message} />} />
-        <Button title="Siguiente" onPress={handleSubmit(() => router.push('/onboarding/photos'))} />
+        <GradientButton title="Siguiente" onPress={handleSubmit(() => router.push('/onboarding/photos'))} />
       </Card>
     </Screen>
   );

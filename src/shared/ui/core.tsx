@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Image,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleProp,
@@ -19,6 +20,7 @@ import {
 import { ChevronDown, X } from 'lucide-react-native';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 import type { ThemePreference } from '@/shared/types/domain';
+import { sectionGradients } from '@/shared/theme/colors';
 
 export function AppText({
   children,
@@ -53,7 +55,6 @@ export function Screen({
   scroll?: boolean | undefined;
   style?: StyleProp<ViewStyle> | undefined;
 }) {
-  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const content = (
     <View
@@ -67,24 +68,124 @@ export function Screen({
     </View>
   );
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <AppBackground>
       {scroll ? <ScrollView contentContainerStyle={styles.scroll}>{content}</ScrollView> : content}
+    </AppBackground>
+  );
+}
+
+export function AppBackground({ children }: { children: ReactNode }) {
+  const { colors, resolved } = useTheme();
+  const gradient =
+    resolved === 'dark'
+      ? `linear-gradient(145deg, ${colors.background} 0%, ${colors.background2} 48%, #0B1024 100%)`
+      : `linear-gradient(145deg, ${colors.background} 0%, ${colors.background2} 52%, ${colors.background3} 100%)`;
+  return (
+    <View
+      style={[
+        styles.screen,
+        {
+          backgroundColor: colors.background
+        },
+        Platform.OS === 'web' ? ({ backgroundImage: gradient } as ViewStyle) : null
+      ]}
+    >
+      <View style={[styles.blob, styles.blobTopLeft, { backgroundColor: colors.glowPurple }]} />
+      <View style={[styles.blob, styles.blobTopRight, { backgroundColor: colors.glowCyan }]} />
+      <View style={[styles.blob, styles.blobBottom, { backgroundColor: colors.glowPink }]} />
+      <View pointerEvents="none" style={[styles.noiseOverlay, { borderColor: colors.border }]} />
+      {children}
     </View>
   );
 }
 
-export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> | undefined }) {
+export function Card({
+  children,
+  style,
+  variant = 'default',
+  accent = 'discover'
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle> | undefined;
+  variant?: 'default' | 'elevated' | 'glass' | 'featured' | 'interactive';
+  accent?: keyof typeof sectionGradients;
+}) {
   const { colors } = useTheme();
+  const gradient = sectionGradients[accent];
+  const baseSurface =
+    variant === 'glass' ? colors.surfaceGlass : variant === 'elevated' || variant === 'featured' ? colors.surfaceElevated : colors.surface;
   return (
     <View
       style={[
         styles.card,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        {
+          backgroundColor: baseSurface,
+          borderColor: variant === 'featured' ? colors.borderStrong : colors.border,
+          shadowColor:
+            variant === 'featured'
+              ? accent === 'library'
+                ? colors.glowCyan
+                : accent === 'profile'
+                  ? colors.glowCyan
+                  : colors.glowPink
+              : colors.glowPurple,
+          shadowOpacity: variant === 'default' ? 0.08 : 0.18,
+          borderTopColor: variant === 'featured' ? gradient[0] : undefined
+        },
+        Platform.OS === 'web' && variant === 'interactive'
+          ? ({ transitionDuration: '160ms', transitionProperty: 'transform, border-color, box-shadow' } as ViewStyle)
+          : null,
         style
       ]}
     >
       {children}
     </View>
+  );
+}
+
+export function GradientButton({
+  title,
+  onPress,
+  disabled,
+  icon
+}: {
+  title: string;
+  onPress?: (() => void) | undefined;
+  disabled?: boolean | undefined;
+  icon?: ReactNode | undefined;
+}) {
+  const { colors, resolved } = useTheme();
+  const from = resolved === 'dark' ? '#A855F7' : '#7C3AED';
+  const to = resolved === 'dark' ? '#FF3EB5' : '#DB2777';
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed, hovered }) => [
+        styles.button,
+        styles.gradientButton,
+        {
+          backgroundColor: pressed ? colors.primaryBright : colors.primary,
+          borderColor: colors.primaryBright,
+          opacity: disabled ? 0.5 : 1,
+          transform: [{ scale: pressed ? 0.98 : hovered ? 1.015 : 1 }],
+          shadowColor: colors.glowPink,
+          shadowOpacity: 0.36,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 8 }
+        },
+        Platform.OS === 'web'
+          ? ({ backgroundImage: `linear-gradient(120deg, ${from}, ${to})` } as ViewStyle)
+          : null
+      ]}
+    >
+      {icon}
+      <AppText variant="label" color={colors.primaryText}>
+        {title}
+      </AppText>
+    </Pressable>
   );
 }
 
@@ -124,7 +225,16 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: bg, opacity: disabled ? 0.5 : pressed ? 0.85 : 1, borderColor: colors.border }
+        {
+          backgroundColor: pressed && variant === 'primary' ? colors.primaryHover : bg,
+          opacity: disabled ? 0.5 : pressed ? 0.9 : 1,
+          borderColor: variant === 'primary' ? colors.primaryHover : variant === 'secondary' ? colors.borderStrong : colors.border,
+          shadowColor: variant === 'primary' ? colors.glowSecondary : 'transparent',
+          shadowOpacity: variant === 'primary' ? 0.28 : 0,
+          shadowRadius: variant === 'primary' ? 14 : 0,
+          shadowOffset: { width: 0, height: 0 },
+          elevation: variant === 'primary' ? 3 : 0
+        }
       ]}
     >
       {icon}
@@ -152,7 +262,12 @@ export function IconButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.iconButton,
-        { borderColor: colors.border, backgroundColor: colors.surface, opacity: pressed ? 0.75 : 1 }
+        {
+          borderColor: colors.borderStrong,
+          backgroundColor: colors.surfaceGlass,
+          opacity: pressed ? 0.75 : 1,
+          transform: [{ scale: pressed ? 0.96 : 1 }]
+        }
       ]}
     >
       {children}
@@ -166,16 +281,34 @@ export function TextField({
   ...props
 }: TextInputProps & { label: string; error?: string | undefined }) {
   const { colors } = useTheme();
+  const [focused, setFocused] = useState(false);
   return (
     <View style={styles.field}>
       <AppText variant="label">{label}</AppText>
       <TextInput
+        {...props}
         placeholderTextColor={colors.textSubtle}
         style={[
           styles.input,
-          { borderColor: error ? colors.danger : colors.border, color: colors.text, backgroundColor: colors.surface }
+          {
+            borderColor: error ? colors.danger : focused ? colors.accent : colors.border,
+            color: colors.text,
+            backgroundColor: colors.surface,
+            shadowColor: focused ? colors.glowAccent : 'transparent',
+            shadowOpacity: focused ? 0.32 : 0,
+            shadowRadius: focused ? 10 : 0,
+            shadowOffset: { width: 0, height: 0 }
+          },
+          props.style
         ]}
-        {...props}
+        onFocus={(event) => {
+          setFocused(true);
+          props.onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setFocused(false);
+          props.onBlur?.(event);
+        }}
       />
       {error ? (
         <AppText variant="small" color={colors.danger}>
@@ -258,12 +391,12 @@ export function Chip({
       style={[
         styles.chip,
         {
-          backgroundColor: selected ? colors.accentSoft : colors.surface,
-          borderColor: selected ? colors.accent : colors.border
+          backgroundColor: selected ? colors.surface3 : colors.surface,
+          borderColor: selected ? colors.borderStrong : colors.border
         }
       ]}
     >
-      <AppText variant="small" color={selected ? colors.accent : colors.textMuted}>
+      <AppText variant="small" color={selected ? colors.text : colors.textMuted}>
         {label}
       </AppText>
     </Pressable>
@@ -277,10 +410,10 @@ export function Badge({ label, tone = 'muted' }: { label: string; tone?: 'muted'
     success: [colors.successSoft, colors.success],
     warning: [colors.warningSoft, colors.warning],
     danger: [colors.dangerSoft, colors.danger],
-    accent: [colors.accentSoft, colors.accent]
+    accent: [colors.glowCyan, colors.accentBright]
   } as const;
   return (
-    <View style={[styles.badge, { backgroundColor: map[tone][0] }]}>
+    <View style={[styles.badge, { backgroundColor: map[tone][0], borderColor: tone === 'accent' ? colors.accent : 'transparent' }]}>
       <AppText variant="small" color={map[tone][1]}>
         {label}
       </AppText>
@@ -288,7 +421,7 @@ export function Badge({ label, tone = 'muted' }: { label: string; tone?: 'muted'
   );
 }
 
-export function Avatar({ url, name, size = 48 }: { url?: string | null; name: string; size?: number }) {
+export function Avatar({ url, name, size = 48 }: { url?: string | null | undefined; name: string; size?: number }) {
   const { colors } = useTheme();
   return (
     <View style={[styles.avatar, { width: size, height: size, borderRadius: size / 2, backgroundColor: colors.surfaceMuted }]}>
@@ -338,7 +471,7 @@ export function ThemeToggle() {
         accessibilityLabel="Cambiar tema"
         value={preference === 'dark'}
         onValueChange={() => setPreference(next)}
-        trackColor={{ false: colors.surfaceMuted, true: colors.primary }}
+        trackColor={{ false: colors.surfaceMuted, true: colors.secondary }}
         thumbColor={colors.surface}
       />
     </View>
@@ -375,8 +508,8 @@ export function BottomSheet({
 }
 
 const variantStyles = StyleSheet.create({
-  title: { fontSize: 30, lineHeight: 36, fontWeight: '700' },
-  section: { fontSize: 20, lineHeight: 26, fontWeight: '600' },
+  title: { fontSize: 32, lineHeight: 38, fontWeight: '700', letterSpacing: -0.2 },
+  section: { fontSize: 22, lineHeight: 28, fontWeight: '700', letterSpacing: -0.1 },
   body: { fontSize: 16, lineHeight: 23, fontWeight: '400' },
   small: { fontSize: 13, lineHeight: 18, fontWeight: '400' },
   label: { fontSize: 15, lineHeight: 20, fontWeight: '600' }
@@ -386,7 +519,25 @@ export const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flexGrow: 1 },
   screenInner: { width: '100%', alignSelf: 'center', paddingVertical: 24, gap: 16 },
-  card: { borderWidth: 1, borderRadius: 14, padding: 16, gap: 12 },
+  blob: { position: 'absolute', width: 320, height: 320, borderRadius: 999, opacity: 0.62 },
+  blobTopLeft: { top: -130, left: -110 },
+  blobTopRight: { top: -115, right: -130 },
+  blobBottom: { bottom: -160, alignSelf: 'center' },
+  noiseOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.05,
+    borderWidth: StyleSheet.hairlineWidth
+  },
+  card: {
+    borderWidth: 1,
+    borderRadius: 22,
+    padding: 18,
+    gap: 12,
+    shadowOpacity: 0.12,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 2
+  },
   button: {
     minHeight: 48,
     borderRadius: 999,
@@ -397,13 +548,14 @@ export const styles = StyleSheet.create({
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth
   },
+  gradientButton: { overflow: 'hidden' },
   iconButton: { width: 44, height: 44, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   field: { gap: 8 },
-  input: { minHeight: 48, borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, fontSize: 16 },
+  input: { minHeight: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, fontSize: 16 },
   textArea: { minHeight: 112, paddingTop: 12, textAlignVertical: 'top' },
   select: { minHeight: 48, borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   chip: { minHeight: 36, borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
-  badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
+  badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, borderWidth: StyleSheet.hairlineWidth },
   avatar: { alignItems: 'center', justifyContent: 'center' },
   state: { alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
   toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },

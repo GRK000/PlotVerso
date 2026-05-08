@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { genreOptions, languageOptions } from '@/shared/data/options';
 import { preferredFormatOptions, readingFrequencyOptions } from '@/shared/schemas';
-import { AppText, Button, Card, Chip, Screen, Select } from '@/shared/ui/core';
+import { AppText, Card, Chip, GradientButton, Screen, Select } from '@/shared/ui/core';
 
 export default function ReadingOnboarding() {
   const [frequency, setFrequency] = useState('Varias veces por semana');
@@ -23,7 +23,7 @@ export default function ReadingOnboarding() {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{languageOptions.map((item) => <Chip key={item} label={item} selected={languages.includes(item)} onPress={() => toggle(languages, item, setLanguages)} />)}</View>
         <AppText variant="label">Géneros favoritos</AppText>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{genreOptions.map((item) => <Chip key={item} label={item} selected={genres.includes(item)} onPress={() => toggle(genres, item, setGenres)} />)}</View>
-        <Button title="Siguiente" onPress={() => router.push('/onboarding/library')} />
+        <GradientButton title="Siguiente" onPress={() => router.push('/onboarding/library')} />
       </Card>
     </Screen>
   );

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { currentDemoUser } from '@/shared/data/demo';
-import { AppText, Badge, Button, Card, Screen } from '@/shared/ui/core';
+import { AppText, Badge, Card, GradientButton, Screen } from '@/shared/ui/core';
 
 export default function ResultOnboarding() {
   return (
@@ -17,7 +17,7 @@ export default function ResultOnboarding() {
         <AppText>{currentDemoUser.reader.conversation_style}</AppText>
         <AppText variant="section">Libros públicos</AppText>
         {currentDemoUser.library.slice(0, 5).map((item) => <AppText key={item.id}>{item.book.title}</AppText>)}
-        <Button title="Ir a descubrir" onPress={() => router.replace('/(tabs)/discover')} />
+        <GradientButton title="Ir a descubrir" onPress={() => router.replace('/(tabs)/discover')} />
       </Card>
     </Screen>
   );

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { AppText, Button, Card, Screen, TextField } from '@/shared/ui/core';
+import { AppText, Card, GradientButton, Screen, TextField } from '@/shared/ui/core';
 import { PhotoGrid } from '@/features/profile/components';
 
 export default function PhotosOnboarding() {
@@ -13,7 +13,7 @@ export default function PhotosOnboarding() {
         <AppText>Necesitas al menos una imagen visible para aparecer en Descubrir.</AppText>
         <TextField label="URL de foto" value={url} onChangeText={setUrl} />
         <PhotoGrid urls={[url]} />
-        <Button title="Siguiente" onPress={() => router.push('/onboarding/reading')} />
+        <GradientButton title="Siguiente" onPress={() => router.push('/onboarding/reading')} />
       </Card>
     </Screen>
   );

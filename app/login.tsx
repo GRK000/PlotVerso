@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { login } from '@/features/auth/api';
 import { loginSchema, type LoginInput } from '@/shared/schemas';
-import { AppText, Button, Card, Screen, TextField } from '@/shared/ui/core';
+import { AppText, GradientButton, Card, Screen, TextField } from '@/shared/ui/core';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
 export default function LoginScreen() {
@@ -26,7 +26,7 @@ export default function LoginScreen() {
         <Controller control={control} name="email" render={({ field, fieldState }) => <TextField label="Email" autoCapitalize="none" keyboardType="email-address" value={field.value} onChangeText={field.onChange} error={fieldState.error?.message} />} />
         <Controller control={control} name="password" render={({ field, fieldState }) => <TextField label="Contraseña" secureTextEntry value={field.value} onChangeText={field.onChange} error={fieldState.error?.message} />} />
         {error ? <AppText color={colors.danger}>{error}</AppText> : null}
-        <Button title="Entrar" onPress={onSubmit} />
+        <GradientButton title="Entrar" onPress={onSubmit} />
         <Link href="/register"><AppText color={colors.textMuted}>Crear cuenta</AppText></Link>
       </Card>
     </Screen>

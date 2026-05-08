@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { currentDemoUser, demoBooks } from '@/shared/data/demo';
 import { BookCover, BookStatusSelector, RatingStars } from '@/features/books/components';
-import { AppText, Button, Card, Screen, TextArea } from '@/shared/ui/core';
+import { AppText, Button, Card, GradientButton, Screen, TextArea } from '@/shared/ui/core';
 import { useState } from 'react';
 import type { BookStatus } from '@/shared/types/domain';
 
@@ -22,7 +22,7 @@ export default function BookDetailScreen() {
         <BookStatusSelector value={status} onChange={setStatus} />
         <RatingStars value={rating} onChange={setRating} />
         <TextArea label="Nota privada" value={note} onChangeText={setNote} />
-        <Button title="Guardar cambios" onPress={() => router.back()} />
+        <GradientButton title="Guardar cambios" onPress={() => router.back()} />
         <Button title="Eliminar de biblioteca" variant="danger" onPress={() => router.back()} />
       </Card>
     </Screen>

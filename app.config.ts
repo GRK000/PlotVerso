@@ -10,7 +10,7 @@ const config: ExpoConfig = {
   newArchEnabled: true,
   platforms: ['android', 'web'],
   splash: {
-    backgroundColor: '#F7F3EC',
+    backgroundColor: '#060510',
     resizeMode: 'contain'
   },
   android: {
