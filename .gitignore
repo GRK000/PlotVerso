@@ -1,8 +1,37 @@
-node_modules
-.expo
-dist
+# Dependencies
+node_modules/
+
+# Environment
 .env
-.env.local
-coverage
-.web-build
-.supabase
+.env.*
+!.env.example
+
+# Expo / React Native
+.expo/
+.expo-shared/
+.web-build/
+dist/
+web-build/
+android/
+ios/
+
+# Local Supabase runtime state
+.supabase/
+supabase/.temp/
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

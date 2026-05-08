@@ -1,5 +1,6 @@
 import { supabase } from '@/shared/lib/supabase';
 import type { LoginInput, RegisterInput } from '@/shared/schemas';
+export { getAuthErrorMessage } from './errors';
 
 export async function register(input: RegisterInput) {
   return supabase.auth.signUp({ email: input.email, password: input.password });

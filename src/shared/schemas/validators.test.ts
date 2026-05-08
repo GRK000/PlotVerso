@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { basicProfileSchema, registerSchema, userBookSchema } from './index';
+import { basicProfileSchema, messageSchema, photosSchema, registerSchema, reportSchema, userBookSchema } from './index';
 
 describe('validators', () => {
   it('rejects underage users', () => {
@@ -28,5 +28,15 @@ describe('validators', () => {
   it('only allows rating read or abandoned books', () => {
     expect(userBookSchema.safeParse({ status: 'pending', rating: 4, is_favorite: false, show_on_profile: true }).success).toBe(false);
     expect(userBookSchema.safeParse({ status: 'read', rating: 4, is_favorite: false, show_on_profile: true }).success).toBe(true);
+  });
+
+  it('rejects empty chat messages and oversized reports', () => {
+    expect(messageSchema.safeParse({ body: '   ' }).success).toBe(false);
+    expect(reportSchema.safeParse({ reason: 'safety', details: 'x'.repeat(1201) }).success).toBe(false);
+  });
+
+  it('requires valid profile photo URLs', () => {
+    expect(photosSchema.safeParse({ urls: ['not-a-url'] }).success).toBe(false);
+    expect(photosSchema.safeParse({ urls: ['https://example.com/photo.jpg'] }).success).toBe(true);
   });
 });

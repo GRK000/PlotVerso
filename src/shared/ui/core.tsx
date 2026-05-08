@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 import type { ThemePreference } from '@/shared/types/domain';
 import { sectionGradients } from '@/shared/theme/colors';
+import { radii, shadows, spacing } from '@/shared/theme/tokens';
 
 export function AppText({
   children,
@@ -298,6 +299,7 @@ export function TextField({
       <AppText variant="label">{label}</AppText>
       <TextInput
         {...props}
+        accessibilityLabel={props.accessibilityLabel ?? label}
         placeholderTextColor={colors.textSubtle}
         style={[
           styles.input,
@@ -398,6 +400,7 @@ export function Chip({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ selected: !!selected }}
       onPress={onPress}
       style={[
         styles.chip,
@@ -541,32 +544,29 @@ export const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 1,
-    borderRadius: 22,
+    borderRadius: radii.xl,
     padding: 18,
-    gap: 12,
-    shadowOpacity: 0.12,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 2
+    gap: spacing.md,
+    ...shadows.soft
   },
   button: {
     minHeight: 48,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     paddingHorizontal: 18,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: spacing.sm,
     borderWidth: StyleSheet.hairlineWidth
   },
   gradientButton: { overflow: 'hidden' },
-  iconButton: { width: 44, height: 44, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  field: { gap: 8 },
-  input: { minHeight: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, fontSize: 16 },
+  iconButton: { width: 44, height: 44, borderRadius: radii.pill, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  field: { gap: spacing.sm },
+  input: { minHeight: 50, borderWidth: 1, borderRadius: radii.md, paddingHorizontal: 14, fontSize: 16 },
   textArea: { minHeight: 112, paddingTop: 12, textAlignVertical: 'top' },
   select: { minHeight: 48, borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  chip: { minHeight: 36, borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
-  badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, borderWidth: StyleSheet.hairlineWidth },
+  chip: { minHeight: 36, borderRadius: radii.pill, borderWidth: 1, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
+  badge: { alignSelf: 'flex-start', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, borderWidth: StyleSheet.hairlineWidth },
   avatar: { alignItems: 'center', justifyContent: 'center' },
   state: { alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
   toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },

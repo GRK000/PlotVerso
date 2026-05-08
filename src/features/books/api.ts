@@ -1,13 +1,9 @@
 import { supabase } from '@/shared/lib/supabase';
-import { demoBooks } from '@/shared/data/demo';
+import { searchBooksRepository } from '@/shared/data/repository';
 import type { Book, BookStatus, UserBook } from '@/shared/types/domain';
 
 export async function searchBooks(query: string): Promise<Book[]> {
-  if (query.trim().length < 2) return [];
-  const { data, error } = await supabase.functions.invoke('search-books', { body: { query } });
-  if (!error && Array.isArray(data?.books)) return data.books;
-  const q = query.toLowerCase();
-  return demoBooks.filter((book) => `${book.title} ${book.authors.join(' ')}`.toLowerCase().includes(q));
+  return searchBooksRepository(query);
 }
 
 export async function upsertUserBook(userId: string, book: Book, values: Partial<UserBook> & { status: BookStatus }) {

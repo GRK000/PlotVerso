@@ -11,9 +11,9 @@
     "lint": "eslint . --ext .ts,.tsx",
     "test": "vitest run src",
     "format": "prettier --write .",
-    "supabase:start": "supabase start",
-    "supabase:stop": "supabase stop",
-    "supabase:types": "supabase gen types typescript --local > src/shared/types/database.generated.ts",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:types": "npx supabase gen types typescript --local > src/shared/types/database.generated.ts",
     "build:android:preview": "eas build --platform android --profile preview",
     "build:android:prod": "eas build --platform android --profile production"
   },

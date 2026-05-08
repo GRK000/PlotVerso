@@ -1,9 +1,9 @@
-import { supabase } from '@/shared/lib/supabase';
+import { blockUserRepository, reportUserRepository } from '@/shared/data/repository';
 
-export async function blockUser(blockerId: string, blockedId: string) {
-  return supabase.from('blocks').upsert({ blocker_id: blockerId, blocked_id: blockedId });
+export async function blockUser(blockedId: string) {
+  return blockUserRepository(blockedId);
 }
 
-export async function reportUser(reporterId: string, reportedUserId: string, reason: string, details?: string) {
-  return supabase.from('reports').insert({ reporter_id: reporterId, reported_user_id: reportedUserId, reason, details });
+export async function reportUser(reportedUserId: string, reason: string, details?: string) {
+  return reportUserRepository(reportedUserId, reason, details);
 }

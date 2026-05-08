@@ -3,24 +3,29 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { getMatches } from '@/features/matches/api';
 import type { Match } from '@/shared/types/domain';
-import { AppText, Avatar, Badge, Card, Chip, EmptyState, LoadingState, Screen } from '@/shared/ui/core';
+import { AppText, Avatar, Badge, Card, Chip, EmptyState, ErrorState, LoadingState, Screen } from '@/shared/ui/core';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
 export default function MatchesScreen() {
   const { colors } = useTheme();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    getMatches().then((data) => {
-      setMatches(data);
-      setLoading(false);
-    });
-  }, []);
+  const [error, setError] = useState('');
+  const load = () => {
+    setLoading(true);
+    setError('');
+    getMatches()
+      .then(setMatches)
+      .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los matches.'))
+      .finally(() => setLoading(false));
+  };
+  useEffect(load, []);
   const average = useMemo(
     () => Math.round(matches.reduce((sum, match) => sum + match.compatibility_score, 0) / Math.max(1, matches.length)),
     [matches]
   );
   if (loading) return <LoadingState label="Cargando matches" />;
+  if (error) return <ErrorState title={error} retry={load} />;
   return (
     <Screen maxWidth={900}>
       <Card variant="featured" accent="matches" style={matchStyles.summary}>

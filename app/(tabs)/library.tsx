@@ -1,50 +1,82 @@
 import { router } from 'expo-router';
 import { Search } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { searchBooks } from '@/features/books/api';
 import { BookCoverCard, BookListCard } from '@/features/books/components';
-import { currentDemoUser, demoBooks } from '@/shared/data/demo';
-import type { UserBook } from '@/shared/types/domain';
-import { AppText, Badge, Button, Card, EmptyState, GradientButton, Screen, TextField } from '@/shared/ui/core';
+import { getCurrentUser, getLibraryForCurrentUser } from '@/shared/data/repository';
+import type { Book, UserBook } from '@/shared/types/domain';
+import { AppText, Badge, Button, Card, EmptyState, ErrorState, GradientButton, LoadingState, Screen, TextField } from '@/shared/ui/core';
 import { useTheme } from '@/shared/theme/ThemeProvider';
+
+function toPendingUserBook(book: Book, userId: string): UserBook {
+  return {
+    id: `local-${book.id ?? book.title}`,
+    user_id: userId,
+    book_id: book.id ?? book.title,
+    status: 'pending',
+    rating: null,
+    private_note: null,
+    public_comment: null,
+    is_favorite: false,
+    show_on_profile: true,
+    book
+  };
+}
 
 export default function LibraryScreen() {
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
   const [query, setQuery] = useState('');
-  const [library, setLibrary] = useState<UserBook[]>(currentDemoUser.library);
+  const [library, setLibrary] = useState<UserBook[]>([]);
+  const [userId, setUserId] = useState('');
+  const [results, setResults] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const columns = width >= 980 ? 5 : width >= 760 ? 4 : 2;
-  const searchResults = useMemo(() => {
-    if (query.trim().length < 2) return [];
-    return demoBooks
-      .filter((book) => `${book.title} ${book.authors.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
-      .slice(0, 6);
-  }, [query]);
-  const addBook = (bookId: string) => {
-    const book = demoBooks.find((item) => item.id === bookId);
-    if (!book || library.some((item) => item.book_id === bookId)) return;
-    setLibrary([
-      {
-        id: `local-${bookId}`,
-        user_id: currentDemoUser.profile.id,
-        book_id: bookId,
-        status: 'pending',
-        rating: null,
-        private_note: null,
-        public_comment: null,
-        is_favorite: false,
-        show_on_profile: true,
-        book
-      },
-      ...library
-    ]);
+
+  const load = () => {
+    setLoading(true);
+    setError('');
+    Promise.all([getCurrentUser(), getLibraryForCurrentUser()])
+      .then(([user, items]) => {
+        setUserId(user.profile.id);
+        setLibrary(items);
+      })
+      .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'No se pudo cargar la biblioteca.'))
+      .finally(() => setLoading(false));
   };
-  const stats = [
-    ['Leyendo', library.filter((item) => item.status === 'reading').length, colors.accentBright],
-    ['Leídos', library.filter((item) => item.status === 'read').length, colors.primaryBright],
-    ['Favoritos', library.filter((item) => item.is_favorite || item.status === 'favorite').length, colors.secondaryBright],
-    ['Pendientes', library.filter((item) => item.status === 'pending').length, colors.amber]
-  ] as const;
+
+  useEffect(load, []);
+  useEffect(() => {
+    let active = true;
+    searchBooks(query)
+      .then((books) => {
+        if (active) setResults(books.slice(0, 6));
+      })
+      .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'No se pudo buscar libros.'));
+    return () => {
+      active = false;
+    };
+  }, [query]);
+
+  const addBook = (book: Book) => {
+    const bookId = book.id ?? book.title;
+    if (library.some((item) => item.book_id === bookId)) return;
+    setLibrary([toPendingUserBook(book, userId), ...library]);
+  };
+
+  const stats = useMemo(
+    () =>
+      [
+        ['Leyendo', library.filter((item) => item.status === 'reading').length, colors.accentBright],
+        ['Leídos', library.filter((item) => item.status === 'read').length, colors.primaryBright],
+        ['Favoritos', library.filter((item) => item.is_favorite || item.status === 'favorite').length, colors.secondaryBright],
+        ['Pendientes', library.filter((item) => item.status === 'pending').length, colors.amber]
+      ] as const,
+    [colors.accentBright, colors.amber, colors.primaryBright, colors.secondaryBright, library]
+  );
+
   const section = (title: string, items: UserBook[], featured = false) => (
     <View style={libraryStyles.section}>
       <View style={libraryStyles.sectionHeader}>
@@ -75,10 +107,14 @@ export default function LibraryScreen() {
       )}
     </View>
   );
+
+  if (loading) return <LoadingState label="Cargando biblioteca" />;
+  if (error) return <ErrorState title={error} retry={load} />;
+
   return (
     <Screen maxWidth={1180}>
       <Card variant="featured" accent="library" style={libraryStyles.hero}>
-        <View style={{ flex: 1, gap: 8 }}>
+        <View style={libraryStyles.heroText}>
           <AppText variant="title">Biblioteca</AppText>
           <AppText color={colors.textMuted}>Organiza tus lecturas y decide qué forma parte de tu perfil público.</AppText>
         </View>
@@ -93,26 +129,11 @@ export default function LibraryScreen() {
           </Card>
         ))}
       </View>
-      {searchResults.length ? (
+      {results.length ? (
         <Card variant="elevated">
           <AppText variant="section">Resultados</AppText>
-          {searchResults.map((book) => (
-            <BookListCard
-              key={book.id}
-              item={{
-                id: `result-${book.id}`,
-                user_id: currentDemoUser.profile.id,
-                book_id: book.id!,
-                status: 'pending',
-                rating: null,
-                private_note: null,
-                public_comment: null,
-                is_favorite: false,
-                show_on_profile: true,
-                book
-              }}
-              onPress={() => addBook(book.id!)}
-            />
+          {results.map((book) => (
+            <BookListCard key={book.id ?? book.title} item={toPendingUserBook(book, userId)} onPress={() => addBook(book)} />
           ))}
           <Button title="Buscar en fuentes externas" variant="secondary" icon={<Search size={16} />} />
         </Card>
@@ -128,6 +149,7 @@ export default function LibraryScreen() {
 
 const libraryStyles = StyleSheet.create({
   hero: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' },
+  heroText: { flex: 1, gap: 8 },
   statsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   statCard: { minWidth: 118, flex: 1, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 18 },
   section: { gap: 14 },

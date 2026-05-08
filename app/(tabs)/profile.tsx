@@ -1,12 +1,31 @@
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { logout } from '@/features/auth/api';
-import { currentDemoUser } from '@/shared/data/demo';
-import { AppText, Badge, Button, Card, Screen, ThemeToggle } from '@/shared/ui/core';
+import { getCurrentUser } from '@/shared/data/repository';
+import type { PublicUser } from '@/shared/types/domain';
+import { AppText, Badge, Button, Card, ErrorState, LoadingState, Screen, ThemeToggle } from '@/shared/ui/core';
 import { PhotoGrid, ProfileHeroCard } from '@/features/profile/components';
 
 export default function ProfileScreen() {
-  const user = currentDemoUser;
+  const [user, setUser] = useState<PublicUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const load = () => {
+    setLoading(true);
+    setError('');
+    getCurrentUser()
+      .then(setUser)
+      .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'No se pudo cargar el perfil.'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, []);
+
+  if (loading) return <LoadingState label="Cargando perfil" />;
+  if (error || !user) return <ErrorState title={error || 'No se encontró el perfil.'} retry={load} />;
+
   return (
     <Screen maxWidth={1180}>
       <ProfileHeroCard user={user} />
@@ -17,7 +36,7 @@ export default function ProfileScreen() {
       <Card variant="featured" accent="profile">
         <AppText variant="section">Perfil lector</AppText>
         <AppText>{user.reader.ai_summary}</AppText>
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+        <View style={profileScreenStyles.tags}>
           {user.reader.themes.map((theme) => <Badge key={theme} label={theme} tone="accent" />)}
         </View>
       </Card>
@@ -47,3 +66,7 @@ export default function ProfileScreen() {
     </Screen>
   );
 }
+
+const profileScreenStyles = StyleSheet.create({
+  tags: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' }
+});

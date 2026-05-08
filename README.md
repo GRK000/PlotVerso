@@ -20,6 +20,7 @@ npm run dev:web
 ```
 
 Use `npm.cmd` on Windows if PowerShell blocks `npm.ps1`.
+Supabase local requires Docker Desktop. The project scripts use `npx supabase`, so a global Supabase CLI install is not required.
 
 ## Environment
 
